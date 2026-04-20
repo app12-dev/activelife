@@ -1,0 +1,424 @@
+:root {
+    --bg: #07090b;
+    --card: #12151a;
+    --primary: #00b4ff;
+    /* ActiveLife Blue */
+    --primary-dim: rgba(0, 180, 255, 0.1);
+    --secondary: #ff4800;
+    /* Sportive Orange/Red */
+    --text-high: #fefefe;
+    --text-mid: #a0a4ab;
+    --text-low: #6b7280;
+    --border: rgba(255, 255, 255, 0.08);
+    --success: #10b981;
+    --error: #ff4800;
+    --premium: #ffffff;
+    --transition: all 0.3s ease;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', -apple-system, sans-serif;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text-high);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Utility */
+.hidden {
+    display: none !important;
+}
+
+/* Base Layout */
+.app-shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 5%;
+    border-bottom: 1px solid var(--border);
+    background: rgba(11, 13, 17, 0.8);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.logo img {
+    height: 60px;
+    width: auto;
+    object-fit: contain;
+    mix-blend-mode: screen;
+    /* Siyah arka planı transparan yapar */
+    filter: contrast(1.1) brightness(1.1);
+}
+
+.logo span {
+    color: var(--primary);
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+}
+
+.nav-links a {
+    color: var(--text-mid);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+    color: var(--text-high);
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* Sections */
+section {
+    padding: 3rem 5%;
+    animation: slideUp 0.4s ease-out;
+}
+
+/* Hide member-only/admin sections by default as they are separate views */
+#booking-section,
+#panel-section,
+#admin-section,
+#admin-dash-section {
+    display: none;
+}
+
+section.active {
+    display: block;
+}
+
+/* Hero & Section Backgrounds */
+.hero-section {
+    height: 80vh;
+    background: linear-gradient(rgba(11, 13, 17, 0.6), rgba(11, 13, 17, 0.8)), url('hero-bg.png');
+    background-size: cover;
+    background-position: center;
+    border-radius: 24px;
+    margin: 1rem 5%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+/* Hero & Section Backgrounds */
+.hero-section {
+    height: 80vh;
+    background: linear-gradient(rgba(11, 13, 17, 0.5), rgba(11, 13, 17, 0.7)), url('hero-bg.png');
+    background-size: cover;
+    background-position: center;
+    border-radius: 24px;
+    margin: 1rem 5%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+#register-section,
+#about-section,
+#booking-section,
+#panel-section,
+#contact-section,
+#admin-section,
+#admin-dash-section {
+    background: linear-gradient(rgba(11, 13, 17, 0.85), rgba(11, 13, 17, 0.95)), url('register-bg.png');
+    background-size: cover;
+    background-position: center;
+    border-radius: 24px;
+    margin: 1rem 5%;
+    padding: 4rem 5%;
+    border: 1px solid var(--border);
+    min-height: 70vh;
+}
+
+#about-section {
+    background-image: linear-gradient(rgba(11, 13, 17, 0.85), rgba(11, 13, 17, 0.95)), url('about-bg.png');
+}
+
+#panel-section,
+#booking-section {
+    background-image: linear-gradient(rgba(11, 13, 17, 0.85), rgba(11, 13, 17, 0.95)), url('panel-bg.png');
+}
+
+.hero-content {
+    max-width: 900px;
+    z-index: 100 !important;
+    position: relative;
+}
+
+button,
+.btn {
+    cursor: pointer !important;
+    position: relative;
+    z-index: 110 !important;
+}
+
+.tag {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: var(--primary-dim);
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Cards & Components */
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+h1,
+h2,
+h3 {
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.subtitle {
+    color: var(--text-mid);
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+}
+
+/* Forms */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.full-width {
+    grid-column: span 2;
+}
+
+label {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-low);
+    margin-bottom: 0.5rem;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: #080a0d;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+input:focus,
+select:focus {
+    border-color: var(--primary);
+}
+
+.btn {
+    display: inline-block;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    border: none;
+    text-align: center;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: #fff;
+    width: 100%;
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-high);
+}
+
+.btn-outline:hover {
+    background: var(--border);
+}
+
+/* Pricing Cards */
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.pricing-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.pricing-card.selected {
+    border-color: var(--primary);
+    background: var(--primary-dim);
+}
+
+/* Area Selectors */
+.area-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.area-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.area-btn.selected {
+    background: var(--primary-dim);
+    border-color: var(--primary);
+}
+
+/* Density Display */
+.density-meter {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 0.5rem 0;
+}
+
+.density-fill {
+    height: 100%;
+    background: var(--primary);
+    width: 0%;
+    transition: width 1s ease;
+}
+
+.density-fill.warning {
+    background: var(--error);
+}
+
+/* User Panel Components */
+.panel-layout {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 2rem;
+}
+
+.sidebar {
+    border-right: 1px solid var(--border);
+}
+
+.history-item {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+/* Footer */
+footer {
+    margin-top: auto;
+    padding: 3rem 5%;
+    border-top: 1px solid var(--border);
+    background: #080a0d;
+    font-size: 0.85rem;
+    color: var(--text-low);
+}
+
+.contact-info {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+}
+
+@media (max-width: 768px) {
+
+    .form-grid,
+    .contact-info,
+    .pricing-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .full-width {
+        grid-column: span 1;
+    }
+
+    .panel-layout {
+        grid-template-columns: 1fr;
+    }
+}
