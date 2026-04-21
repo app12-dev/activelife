@@ -17,6 +17,7 @@
                 <a onclick="showSection('home')">Anasayfa</a>
                 <a onclick="showSection('about')">Hakkımızda</a>
                 <a onclick="showSection('register')" id="nav-register">Üye Ol</a>
+                <a onclick="showSection('login')" id="nav-login">Giriş Yap</a>
                 <a onclick="showSection('booking')" id="nav-booking" class="hidden">Rezervasyon</a>
                 <a onclick="showSection('panel')" id="nav-panel" class="hidden">Panel</a>
                 <a onclick="showSection('contact')">İletişim</a>
@@ -35,6 +36,8 @@
                 <div style="display: flex; gap: 1.5rem; justify-content: center;">
                     <button class="btn btn-primary" style="width: auto; padding: 1rem 3rem;"
                         onclick="showSection('register')">Hemen Katıl</button>
+                    <button class="btn btn-outline" style="padding: 1rem 3rem;"
+                        onclick="showSection('guest-booking')">Misafir Randevusu</button>
                     <button class="btn btn-outline" style="padding: 1rem 3rem;"
                         onclick="showSection('about')">Hakkımızda</button>
                 </div>
@@ -104,7 +107,7 @@
 
                         <div class="form-group full-width">
                             <label>Antrenör Talebi</label>
-                            <select id="reg-trainer">
+                            <select id="reg-trainer" onchange="updateLivePrice()">
                                 <option value="no">Hayır</option>
                                 <option value="yes">Evet</option>
                             </select>
@@ -144,7 +147,91 @@
             </div>
         </section>
 
-        <!-- HAKKIMIZDA BÖLÜMÜ: Tesis ve vizyon açıklamaları -->
+        <!-- GİRİŞ YAP BÖLÜMÜ -->
+        <section id="login-section">
+            <div class="card" style="max-width: 400px; margin: 4rem auto;">
+                <h2>Üye Girişi</h2>
+                <p class="subtitle">Kayıtlı hesabınızla devam edin.</p>
+                <div class="form-group">
+                    <label>Adınız</label>
+                    <input type="text" id="login-name" placeholder="Kayıtlı Ad">
+                </div>
+                <div class="form-group">
+                    <label>Giriş Şifresi</label>
+                    <input type="password" id="login-pass" placeholder="****">
+                </div>
+                <button class="btn btn-primary" onclick="loginUser()">Giriş Yap</button>
+                <p id="login-error" class="hidden" style="color: var(--error); margin-top: 1rem;">Hatalı bilgiler!
+                    Lütfen tekrar deneyin.</p>
+                <p style="margin-top: 2rem; font-size: 0.8rem;">Henüz üye değil misiniz? <a
+                        onclick="showSection('register')" style="color: var(--primary); cursor: pointer;">Hemen
+                        Kayıt Ol</a></p>
+            </div>
+        </section>
+
+        <!-- MİSAFİR REZERVASYON BÖLÜMÜ -->
+        <section id="guest-booking-section">
+            <div class="card" style="max-width: 500px; margin: 4rem auto;">
+                <div class="tag" style="background: var(--secondary);">MİSAFİR ERİŞİMİ</div>
+                <h2>Tek Seferlik Giriş</h2>
+                <p class="subtitle">Üye olmadan hemen salonu deneyimleyin. (Tek Seferlik: ₺450)</p>
+
+                <div class="form-group">
+                    <label>Ad Soyad</label>
+                    <input type="text" id="guest-name">
+                </div>
+                <div class="form-group">
+                    <label>Rezervasyon Alanı</label>
+                    <select id="guest-area">
+                        <option value="fitness">Fitness Ana Salon</option>
+                        <option value="pool">Yüzme Havuzu (VIP)</option>
+                        <option value="tennis">Tenis Kortu</option>
+                        <option value="football">Halı Saha</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tarih & Saat</label>
+                    <input type="datetime-local" id="guest-date">
+                </div>
+
+                <!-- Misafir Dolu Uyarısı Container -->
+                <div id="guest-booking-alert" class="hidden"
+                    style="margin-top: 1rem; padding: 1rem; background: rgba(255, 72, 0, 0.1); border: 1px solid var(--secondary); border-radius: 12px;">
+                    <p style="color: var(--secondary); font-size: 0.85rem; font-weight: 700;">⚠️ Maalesef bu saat dilimi
+                        dolu.</p>
+                    <p style="font-size: 0.75rem; margin-top: 5px;">Sizin için uygun olan en yakın alternatifler:</p>
+                    <div id="guest-booking-suggestions"
+                        style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px;">
+                    </div>
+                </div>
+
+                <div class="form-group"
+                    style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+                    <label>Ödeme Bilgileri</label>
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label>Kart Numarası</label>
+                            <input type="text" id="guest-card" placeholder="**** **** **** ****">
+                        </div>
+                        <div class="form-group">
+                            <label>Son Kullanma</label>
+                            <input type="text" id="guest-card-expiry" placeholder="MM/YY">
+                        </div>
+                        <div class="form-group">
+                            <label>CVV</label>
+                            <input type="text" id="guest-card-cvv" placeholder="***">
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="guest-submit-btn"
+                    style="background: var(--secondary); border: none;" onclick="processGuestBooking()">₺450 Öde ve
+                    Randevu Al</button>
+                <p style="font-size: 0.7rem; margin-top: 1rem; opacity: 0.6;">*Misafir giriş ücretleri üyelik
+                    paketlerinden %50 daha pahalıdır.</p>
+            </div>
+        </section>
+
+        <!-- HAKKIMIZDA BÖLÜMÜ -->
         <section id="about-section">
             <div class="card" style="max-width: 800px; text-align: left;">
                 <h2>ActiveLife Hakkımızda</h2>
@@ -152,15 +239,18 @@
                     birleştirerek size en iyi deneyimi sunmayı hedefler.</p>
 
                 <h3 style="margin-top: 2rem;">Vizyonumuz</h3>
-                <p class="subtitle">Sporu sadece bir aktivite değil, bir yaşam biçimi haline getirmek ve Balıkesir'in en
+                <p class="subtitle">Sporu sadece bir aktivite değil, bir yaşam biçimi haline getirmek ve
+                    Balıkesir'in en
                     öncü spor merkezi olmak.</p>
 
                 <h3>Misyonumuz</h3>
-                <p class="subtitle">Her yaştan ve her seviyeden bireye, güvenli, temiz ve profesyonel bir ortamda spor
+                <p class="subtitle">Her yaştan ve her seviyeden bireye, güvenli, temiz ve profesyonel bir ortamda
+                    spor
                     yapma imkanı sağlamak.</p>
 
                 <h3>Hizmet Anlayışımız</h3>
-                <p class="subtitle">Fitness, yüzme, tenis ve futbol alanlarında uzman antrenörlerimizle, hedeflerinize
+                <p class="subtitle">Fitness, yüzme, tenis ve futbol alanlarında uzman antrenörlerimizle,
+                    hedeflerinize
                     en kısa sürede ulaşmanızı sağlıyoruz.</p>
             </div>
         </section>
@@ -173,7 +263,8 @@
                     <div class="form-group full-width">
                         <label>Spor Alanı</label>
                         <div class="area-grid">
-                            <div class="area-btn selected" onclick="selectArea(this, 'fitness')">Fitness Salonu</div>
+                            <div class="area-btn selected" onclick="selectArea(this, 'fitness')">Fitness Salonu
+                            </div>
                             <div class="area-btn" onclick="selectArea(this, 'pool')">Yüzme Havuzu</div>
                             <div class="area-btn" onclick="selectArea(this, 'tennis')">Tenis Kortu</div>
                             <div class="area-btn" onclick="selectArea(this, 'football')">Halı Saha</div>
@@ -332,7 +423,8 @@
                             PRO ANALYTICS</div>
                         <h1 style="font-size: 2.2rem; margin-top: 0.5rem; color: #fff;">STRATEJİK OPERASYON <span
                                 style="color:var(--primary);">MERKEZİ</span></h1>
-                        <p class="subtitle" style="font-size: 0.9rem; margin: 0;">Real-Time Performance Dashboard</p>
+                        <p class="subtitle" style="font-size: 0.9rem; margin: 0;">Real-Time Performance Dashboard
+                        </p>
                     </div>
                     <div style="display: flex; align-items: center; gap: 2rem;">
                         <div style="font-size: 0.8rem; color: var(--text-mid); text-align: right;">Sunucu Durumu:
@@ -354,7 +446,8 @@
                             <h3 style="font-size: 1.1rem;">Mali Performans Trendi (Yıllık)</h3>
                             <div style="text-align: right;">
                                 <div style="font-size: 1.8rem; font-weight: 800; color: #fff;">₺284.400</div>
-                                <div style="font-size: 0.8rem; color: var(--success); font-weight: 700;">↑ %24.8 Bu Ay
+                                <div style="font-size: 0.8rem; color: var(--success); font-weight: 700;">↑ %24.8 Bu
+                                    Ay
                                 </div>
                             </div>
                         </div>
@@ -462,7 +555,8 @@
                                     <div style="font-weight: 700; font-size: 0.85rem; color: #fff;">Ali Yılmaz</div>
                                     <div style="font-size: 0.65rem; color: var(--text-mid);">Fitness Lead</div>
                                 </div>
-                                <div style="text-align: right; color: #fbbf24; font-weight: 800; font-size: 0.8rem;">4.9
+                                <div style="text-align: right; color: #fbbf24; font-weight: 800; font-size: 0.8rem;">
+                                    4.9
                                     ★</div>
                             </div>
                             <div
@@ -471,10 +565,12 @@
                                     style="width: 35px; height: 35px; background: var(--secondary); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #000; font-size: 0.8rem;">
                                     CD</div>
                                 <div style="flex:1;">
-                                    <div style="font-weight: 700; font-size: 0.85rem; color: #fff;">Canan Demir</div>
+                                    <div style="font-weight: 700; font-size: 0.85rem; color: #fff;">Canan Demir
+                                    </div>
                                     <div style="font-size: 0.65rem; color: var(--text-mid);">Coach</div>
                                 </div>
-                                <div style="text-align: right; color: #fbbf24; font-weight: 800; font-size: 0.8rem;">4.8
+                                <div style="text-align: right; color: #fbbf24; font-weight: 800; font-size: 0.8rem;">
+                                    4.8
                                     ★</div>
                             </div>
                         </div>
@@ -482,17 +578,20 @@
 
                     <!-- 5. Weekly Matrix (Full Width) -->
                     <div class="card" style="grid-column: 1 / -1; padding: 1rem; border-top: 4px solid var(--primary);">
-                        <h3 style="font-size: 1rem; margin-bottom: 1rem;">Haftalık Stratejik Rezervasyon Matrisi</h3>
+                        <h3 style="font-size: 1rem; margin-bottom: 1rem;">Haftalık Stratejik Rezervasyon Matrisi
+                        </h3>
                         <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 0.5rem;">
                             <div
                                 style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 0.2rem; text-align: center;">
-                                <div style="font-weight: 800; color: var(--text-mid); font-size: 0.55rem;">PTESİ</div>
+                                <div style="font-weight: 800; color: var(--text-mid); font-size: 0.55rem;">PTESİ
+                                </div>
                                 <div style="font-size: 1.1rem; font-weight: 900; margin-top: 3px; color: #fff;">%65
                                 </div>
                             </div>
                             <div
                                 style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 0.2rem; text-align: center;">
-                                <div style="font-weight: 800; color: var(--text-mid); font-size: 0.55rem;">SALI</div>
+                                <div style="font-weight: 800; color: var(--text-mid); font-size: 0.55rem;">SALI
+                                </div>
                                 <div style="font-size: 1.1rem; font-weight: 900; margin-top: 3px; color: #fff;">%72
                                 </div>
                             </div>
@@ -504,13 +603,15 @@
                             </div>
                             <div
                                 style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 0.2rem; text-align: center;">
-                                <div style="font-weight: 800; color: var(--text-mid); font-size: 0.55rem;">PERŞ</div>
+                                <div style="font-weight: 800; color: var(--text-mid); font-size: 0.55rem;">PERŞ
+                                </div>
                                 <div style="font-size: 1.1rem; font-weight: 900; margin-top: 3px; color: #fff;">%81
                                 </div>
                             </div>
                             <div
                                 style="background: rgba(255,72,0,0.1); border: 1px solid var(--secondary); border-radius: 8px; padding: 0.6rem 0.2rem; text-align: center;">
-                                <div style="font-weight: 800; color: var(--secondary); font-size: 0.55rem;">CUMA</div>
+                                <div style="font-weight: 800; color: var(--secondary); font-size: 0.55rem;">CUMA
+                                </div>
                                 <div style="font-size: 1.1rem; font-weight: 900; margin-top: 3px; color: #fff;">%98
                                 </div>
                             </div>
@@ -522,7 +623,8 @@
                             </div>
                             <div
                                 style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 0.2rem; text-align: center;">
-                                <div style="font-weight: 800; color: var(--text-mid); font-size: 0.55rem;">PAZAR</div>
+                                <div style="font-weight: 800; color: var(--text-mid); font-size: 0.55rem;">PAZAR
+                                </div>
                                 <div style="font-size: 1.1rem; font-weight: 900; margin-top: 3px; color: #fff;">%70
                                 </div>
                             </div>
@@ -540,7 +642,8 @@
                     <div class="logo" id="secret-trigger" style="cursor: default;"><img src="logo.png" alt="ActiveLife"
                             style="height: 60px;"></div>
                     <p style="margin: 1.5rem 0; font-size: 0.9rem; color: var(--text-mid); line-height: 1.8;">
-                        ActiveLife, Balıkesir Altıeylül bölgesinde premium hizmet anlayışı ve son teknoloji ekipmanları
+                        ActiveLife, Balıkesir Altıeylül bölgesinde premium hizmet anlayışı ve son teknoloji
+                        ekipmanları
                         ile sağlıklı yaşamın merkezidir.
                     </p>
                     <div style="font-size: 0.85rem;">
@@ -557,8 +660,10 @@
                         style="color: var(--primary); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 2px;">
                         Çalışma Saatleri</h4>
                     <ul style="list-style: none; font-size: 0.85rem; color: var(--text-mid);">
-                        <li style="margin-bottom: 10px; display: flex; justify-content: space-between;"><span>Pazartesi
-                                - Cuma</span> <span>06:00 - 23:30</span></li>
+                        <li style="margin-bottom: 10px; display: flex; justify-content: space-between;">
+                            <span>Pazartesi
+                                - Cuma</span> <span>06:00 - 23:30</span>
+                        </li>
                         <li style="margin-bottom: 10px; display: flex; justify-content: space-between;">
                             <span>Cumartesi</span> <span>08:00 - 22:00</span>
                         </li>

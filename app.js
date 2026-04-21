@@ -20,7 +20,9 @@ let state = {
         tennis: 10,
         football: 0
     },
-    firstAttempt: true // Rezervasyonun ilk denemesini takip eden hata simülasyon bayrağı
+    firstAttempt: true, // Rezervasyonun ilk denemesini takip eden hata simülasyon bayrağı
+    guestFirstAttempt: true, // Misafir rezervasyonu için ilk deneme bayrağı
+    allUsers: [] // Kayıt olan tüm kullanıcıları tutan basit veritabanı (Simüle edilmiş)
 };
 
 /** 
@@ -29,7 +31,7 @@ let state = {
  * Kaydırma efektleri ve güvenlik kontrolleri burada yapılır.
  */
 function showSection(sectionId) {
-    const landingSections = ['home', 'register', 'about', 'contact']; // Dikey kayan ana sayfa bölümleri
+    const landingSections = ['home', 'register', 'about', 'contact', 'login', 'guest-booking']; // Dikey kayan ana sayfa bölümleri
     const memberSections = ['booking', 'panel', 'admin', 'admin-dash']; // Sadece belirli durumlarda görünen bölümler
 
     // Navigasyon çubuğundaki aktif linkin güncellenmesi
@@ -39,8 +41,8 @@ function showSection(sectionId) {
 
     // Güvenlik Kilidi: Üye olmayanların panel veya rezervasyon sayfasına girmesini engeller
     if ((sectionId === 'booking' || sectionId === 'panel') && !state.user) {
-        alert('Bu alanı görmek için üye olmanız gerekmektedir.');
-        showSection('register');
+        alert('Bu alanı görmek için üye girişi yapmanız gerekmektedir.');
+        showSection('login');
         return;
     }
 
@@ -139,7 +141,11 @@ function updateLivePrice() {
     const duration = state.selectedTier;
     const basePrice = state.prices[tierKey];
     const discount = duration === 12 ? 0.7 : (duration === 6 ? 0.8 : (duration === 3 ? 0.9 : 1));
-    const finalPrice = Math.floor(basePrice * duration * discount);
+
+    // Antrenör eklemesi (Aylık +₺300)
+    const trainerSurcharge = document.getElementById('reg-trainer')?.value === 'yes' ? (300 * duration) : 0;
+
+    const finalPrice = Math.floor((basePrice * duration * discount) + trainerSurcharge);
 
     const priceDisplay = document.getElementById('live-price');
     if (priceDisplay) {
@@ -178,10 +184,11 @@ document.getElementById('reg-form').addEventListener('submit', (e) => {
     const duration = state.selectedTier;
     const finalPrice = updateLivePrice();
 
-    // Kullanıcı verisini merkezi duruma kaydet
-    state.user = {
+    // Kullanıcı verisini merkezi duruma ve "allUsers" listesine kaydet
+    const newUser = {
         name: document.getElementById('reg-name').value,
         surname: document.getElementById('reg-surname').value,
+        cardNo: cardInput.value.replace(/\s/g, ''),
         gender: document.getElementById('reg-gender').value,
         tierKey: tierKey,
         duration: duration,
@@ -193,6 +200,9 @@ document.getElementById('reg-form').addEventListener('submit', (e) => {
         }],
         expires: new Date(Date.now() + state.selectedTier * 30 * 24 * 60 * 60 * 1000).toLocaleDateString('tr-TR')
     };
+
+    state.user = newUser;
+    state.allUsers.push(newUser); // Login için listeye ekle
 
     updatePanel(); // Üye panelini yeni bilgilerle doldur
 
@@ -212,6 +222,106 @@ document.getElementById('reg-form').addEventListener('submit', (e) => {
 
     setTimeout(() => showSection('panel'), 2000);
 });
+
+function loginUser() {
+    const name = document.getElementById('login-name').value;
+    const pass = document.getElementById('login-pass').value;
+    const errorMsg = document.getElementById('login-error');
+
+    if (pass === '1923' && name.length > 1) {
+        // Eğer bu isimle biri zaten kayıtlıysa onu getir
+        let foundUser = state.allUsers.find(u => u.name.toLowerCase() === name.toLowerCase());
+
+        // Eğer kayıtlı değilse, anlık bir "Misafir Üye" profili oluştur (Test kolaylığı için)
+        if (!foundUser) {
+            foundUser = {
+                name: name,
+                surname: "User",
+                tierKey: "VIP",
+                duration: 12,
+                price: 5600,
+                payments: [{ date: new Date().toLocaleDateString('tr-TR'), amount: 5600, desc: 'Hızlı Üyelik Paneli' }],
+                expires: "29.10.2024"
+            };
+            state.allUsers.push(foundUser);
+        }
+
+        state.user = foundUser;
+        errorMsg.classList.add('hidden');
+        updateNav();
+        updatePanel();
+        showSection('panel');
+    } else {
+        errorMsg.classList.remove('hidden');
+    }
+}
+
+/** 
+ * Misafir Rezervasyon Süreci: 
+ * Üyeliksiz, tek seferlik ödeme ile rezervasyon oluşturur.
+ * İlk denemede 'Dolu' simülasyonu yapar.
+ */
+function processGuestBooking() {
+    const name = document.getElementById('guest-name').value;
+    const dateInput = document.getElementById('guest-date').value;
+    const area = document.getElementById('guest-area').value;
+    const alertBox = document.getElementById('guest-booking-alert');
+    const suggestBox = document.getElementById('guest-booking-suggestions');
+    const cardInput = document.getElementById('guest-card').value.replace(/\s/g, '');
+
+    if (!name || !dateInput) {
+        alert('Lütfen Ad Soyad ve Tarih bilgilerini doldurun.');
+        return;
+    }
+
+    if (cardInput !== "4242424242424242") {
+        alert('Lütfen geçerli bir test kartı numarası giriniz: 4242 4242 4242 4242');
+        return;
+    }
+
+    const dateParts = dateInput.split('T');
+    const date = dateParts[0];
+
+    if (state.guestFirstAttempt) {
+        alertBox.classList.remove('hidden');
+        state.guestFirstAttempt = false;
+        const hours = ["09:00", "13:00", "16:00", "19:00", "21:00"];
+        const randomHours = hours.sort(() => 0.5 - Math.random()).slice(0, 4);
+        suggestBox.innerHTML = randomHours.map(h => `
+            <div onclick="selectGuestSuggested('${date}', '${h}')" 
+                 style="padding: 10px; border: 1px solid var(--secondary); border-radius:8px; cursor:pointer; font-size: 0.75rem; text-align: center; background: rgba(255,255,255,0.05); color: #fff;">
+                ${h} (Mevcut)
+            </div>
+        `).join('');
+        alertBox.scrollIntoView({ behavior: 'smooth' });
+        return;
+    }
+
+    alertBox.classList.add('hidden');
+    const section = document.getElementById('guest-booking-section');
+    const msg = document.createElement('div');
+    msg.id = 'success-qr-msg';
+    msg.innerHTML = `
+        <div class="card" style="border-color: var(--secondary); background: rgba(255, 72, 0, 0.1); margin-top: 1rem; text-align: center; animation: slideUp 0.4s ease;">
+            <h3 style="color: var(--secondary);">✓ Misafir Girişi Onaylandı</h3>
+            <p style="font-size: 0.8rem;">${dateInput.replace('T', ' ')} - ${area.toUpperCase()}</p>
+            <div style="margin-top: 1rem; background: #fff; padding: 1rem; display: inline-block; border-radius: 8px;">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ActiveLife-Guest-${name}-${area}" alt="QR Code" style="width: 120px;">
+            </div>
+            <p style="font-size: 0.75rem; margin-top: 1rem; opacity: 0.8;">Bu kodu girişteki turnikeye okutun.</p>
+        </div>`;
+    const oldMsg = document.getElementById('success-qr-msg');
+    if (oldMsg) oldMsg.remove();
+    section.prepend(msg);
+    msg.scrollIntoView({ behavior: 'smooth' });
+}
+
+/** Misafir önerilen saat seçimi */
+function selectGuestSuggested(date, time) {
+    document.getElementById('guest-date').value = `${date}T${time}`;
+    state.guestFirstAttempt = false;
+    processGuestBooking();
+}
 
 /** Rezervasyon yapılacak alanı (Fitness, Havuz vb.) seçer. */
 function selectArea(element, area) {
@@ -352,33 +462,65 @@ function completePayment() {
 
 /** Kredi kartı numarası ve SKT (Son Kullanma Tarihi) alanlarını otomatik formatlar. */
 function initInputFormats() {
-    const cardInput = document.getElementById('reg-card-no');
     const dateInput = document.getElementById('reg-card-expiry');
+    // Kart formatlama (Heceler arası boşluk)
+    const cardElements = [
+        document.getElementById('reg-card-no'),
+        document.getElementById('guest-card'),
+        document.getElementById('card-inner-input')
+    ];
 
-    if (cardInput) {
-        cardInput.addEventListener('input', (e) => {
-            let v = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-            let matches = v.match(/\d{4,16}/g);
-            let match = matches && matches[0] || '';
-            let parts = [];
-            for (let i = 0, len = match.length; i < len; i += 4) {
-                parts.push(match.substring(i, i + 4));
-            }
-            if (parts.length) e.target.value = parts.join(' ');
-            else e.target.value = v;
-        });
-    }
+    cardElements.forEach(el => {
+        if (el) {
+            el.addEventListener('input', (e) => {
+                let v = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+                let matches = v.match(/\d{4,16}/g);
+                let match = matches && matches[0] || '';
+                let parts = [];
+                for (let i = 0, len = match.length; i < len; i += 4) {
+                    parts.push(match.substring(i, i + 4));
+                }
+                if (parts.length) e.target.value = parts.join(' ');
+                else e.target.value = v;
+            });
+        }
+    });
 
-    if (dateInput) {
-        dateInput.addEventListener('input', (e) => {
-            let v = e.target.value.replace(/\D/g, '');
-            if (v.length >= 2) {
-                e.target.value = v.substring(0, 2) + '/' + v.substring(2, 4);
-            } else {
+    // Son Kullanma Tarihi Formatlama (MM/YY)
+    const expiryElements = [
+        document.getElementById('reg-card-expiry'),
+        document.getElementById('guest-card-expiry')
+    ];
+
+    expiryElements.forEach(el => {
+        if (el) {
+            el.addEventListener('input', (e) => {
+                let v = e.target.value.replace(/\D/g, '');
+                if (v.length > 4) v = v.substring(0, 4);
+                if (v.length >= 2) {
+                    e.target.value = v.substring(0, 2) + '/' + v.substring(2, 4);
+                } else {
+                    e.target.value = v;
+                }
+            });
+        }
+    });
+
+    // CVV Formatlama (Maksimum 3 Haneli Rakam)
+    const cvvElements = [
+        document.getElementById('reg-card-cvv'),
+        document.getElementById('guest-card-cvv')
+    ];
+
+    cvvElements.forEach(el => {
+        if (el) {
+            el.addEventListener('input', (e) => {
+                let v = e.target.value.replace(/\D/g, '');
+                if (v.length > 3) v = v.substring(0, 3);
                 e.target.value = v;
-            }
-        });
-    }
+            });
+        }
+    });
 }
 setTimeout(initInputFormats, 500);
 
@@ -459,4 +601,3 @@ function simulateDensity() {
     });
 }
 setInterval(simulateDensity, 5000);
-
